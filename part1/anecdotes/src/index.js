@@ -42,11 +42,23 @@ const App = ({ anecdotes }) => {
         setVotes(arr);
     }
 
+    let topVoted = anecdoteList[selected];
+    let max = -1;
+    anecdoteList.forEach(obj => {
+        if (obj.votes > max) {
+            topVoted = obj;
+            max = obj.votes;
+        }
+    })
+
     return (
         <div>
+            <h2>Anecdote of the day</h2>
             <Anecdote text={anecdoteList[selected].anecdote} votes={anecdoteList[selected].votes} />
             <Button text='new anecdote' handler={getNewAnecdote} />
             <Button text='vote' handler={vote} />
+            <h2>Anecdote with most votes</h2>
+            <Anecdote text={topVoted.anecdote} votes={topVoted.votes} />
         </div>
     )
 }
