@@ -12,29 +12,29 @@ const Header = (props) => {
 
 const Part = (props) => {
     return (
-        <li>
+        <p>
             {props.partName} {props.exerciseCount}
-        </li>
+        </p>
     )
 }
 
 const Content = ({ parts }) => {
     return (
-        <ul>
+        <div>
             {parts.map(part => <Part key={part.id} partName={part.name} exerciseCount={part.exercises} />)}
-        </ul>
+        </div>
     )
 }
 
-const Total = (props) => {
-    let total = 0;
-    props.parts.forEach(x => {
-        total += x.exercises
-    });
+const Total = ({ parts }) => {
+
+    const total = parts.reduce((sum, part) => {
+        return sum + part.exercises
+    }, 0)
 
     return (
         <p>
-            Number of exercises {total}
+            Total number of exercises: {total}
         </p>
     )
 }
