@@ -1,5 +1,29 @@
 import React, { useState } from 'react'
 
+const Filter = ({ search, handleChange }) => {
+    return (
+        <>
+        <span>Show filter</span><input value={search} onChange={handleChange} />
+        </>
+    )
+}
+
+const Form = ({ submitHandle, name, handleName, number, handleNumber }) => {
+    return (
+        <form onSubmit={submitHandle}>
+            <div>
+                name: <input value={name} onChange={handleName} />
+            </div>
+            <div>
+                number: <input value={number} onChange={handleNumber} />
+            </div>
+            <div>
+                <button type="submit">add</button>
+            </div>
+        </form>
+    )
+}
+
 const Book = ({ persons, search }) => {
     const re = new RegExp(search, 'i');
     return (
@@ -49,19 +73,17 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
-            <span>Show filter</span><input value={search} onChange={handleSearchChange} />
+            <Filter search={search} handleChange={handleSearchChange} />
+
             <h3>Add new record</h3>
-            <form onSubmit={addNewName}>
-                <div>
-                    name: <input value={newName} onChange={handleNameChange} />
-                </div>
-                <div>
-                    number: <input value={newNumber} onChange={handleNumberChange} />
-                </div>
-                <div>
-                    <button type="submit">add</button>
-                </div>
-            </form>
+            <Form
+                submitHandle={addNewName}
+                name={newName}
+                handleName={handleNameChange}
+                number={newNumber}
+                handleNumber={handleNumberChange}
+            />
+
             <h2>Numbers</h2>
             <Book persons={persons} search={search} />
         </div>
