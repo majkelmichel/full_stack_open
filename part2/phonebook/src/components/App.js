@@ -47,7 +47,7 @@ const App = () => {
                 setPersons(res.data);
             });
     }
-    
+
     useEffect(hook, []);
 
     const handleNameChange = (e) => {
