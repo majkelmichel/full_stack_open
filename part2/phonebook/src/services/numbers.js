@@ -8,4 +8,8 @@ const newRecord = (record) => {
     return axios.post('http://localhost:3001/persons', record)
 }
 
-export default { getAll, newRecord }
+const deleteRecord = (id) => {
+    return axios.delete(`http://localhost:3001/persons/${id}`)
+}
+
+export default { getAll, newRecord, deleteRecord }
