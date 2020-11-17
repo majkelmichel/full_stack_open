@@ -76,18 +76,28 @@ const App = () => {
 
     const addNewName = (e) => {
         e.preventDefault();
-        const personObj = {
-            name: newName,
-            number: newNumber
+
+        if (persons.some(obj => obj.name === newName)) {
+            const personObj = persons.find(obj => obj.name === newName);
+            const changedPerson = { ...personObj, number: newNumber };
+            if (window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)) {
+                numberService
+                    .replaceNumber(changedPerson)
+                    .then(res => {
+                        setPersons(persons.map(per => per.id !== changedPerson.id ? per : res.data));
+                    })
+            }
+        } else {
+            const personObj = {
+                name: newName,
+                number: newNumber
+            }
+            numberService
+                .newRecord(personObj)
+                .then(res => {
+                    setPersons(persons.concat(res.data));
+                });
         }
-        if (persons.some(obj => obj.name === personObj.name)) {
-            return alert(`${newName} is already added to the phonebook`)
-        }
-        numberService
-            .newRecord(personObj)
-            .then(res => {
-                setPersons(persons.concat(res.data));
-            });
         setNewName('');
         setNewNumber('');
     }
