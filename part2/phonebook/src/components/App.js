@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react';
+import numberService from '../services/numbers';
 
 const Filter = ({ search, handleChange }) => {
     return (
@@ -41,8 +41,8 @@ const App = () => {
     const [ search, setSearch ] = useState('');
 
     const hook = () => {
-        axios
-            .get('http://localhost:3001/persons')
+        numberService
+            .getAll()
             .then(res => {
                 setPersons(res.data);
             });
@@ -71,7 +71,11 @@ const App = () => {
         if (persons.some(obj => obj.name === personObj.name)) {
             return alert(`${newName} is already added to the phonebook`)
         }
-        setPersons(persons.concat(personObj));
+        numberService
+            .newRecord(personObj)
+            .then(res => {
+                setPersons(persons.concat(res.data));
+            });
         setNewName('');
         setNewNumber('');
     }
