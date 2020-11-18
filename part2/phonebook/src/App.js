@@ -1,56 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import numberService from '../services/numbers';
+import numberService from './services/numbers';
 
-const Filter = ({ search, handleChange }) => {
-    return (
-        <>
-        <span>Show filter</span><input value={search} onChange={handleChange} />
-        </>
-    )
-}
-
-const Form = ({ submitHandle, name, handleName, number, handleNumber }) => {
-    return (
-        <form onSubmit={submitHandle}>
-            <div>
-                name: <input value={name} onChange={handleName} />
-            </div>
-            <div>
-                number: <input value={number} onChange={handleNumber} />
-            </div>
-            <div>
-                <button type="submit">add</button>
-            </div>
-        </form>
-    )
-}
-
-const Book = ({ persons, search, setPersons }) => {
-    const re = new RegExp(search, 'i');
-
-    const handler = (person) => {
-        if (window.confirm(`Delete ${person.name}`)) {
-            numberService
-                .deleteRecord(person.id)
-                .then(() => {
-                    setPersons(persons.filter(obj => obj.id !== person.id));
-                })
-        }
-    }
-    return (
-        <ul>
-            {persons.filter(per => re.test(per.name)).map(x => <li key={x.name}>
-                {x.name} {x.number} <button onClick={() => handler(x)}>delete</button>
-            </li>)}
-        </ul>
-    )
-}
+import Filter from "./components/Filter";
+import Form from "./components/Form";
+import Book from "./components/Book";
+import Notification from "./components/Notification";
+import Error from "./components/Error";
 
 const App = () => {
     const [ persons, setPersons ] = useState([]);
     const [ newName, setNewName ] = useState('');
     const [ newNumber, setNewNumber ] = useState('');
     const [ search, setSearch ] = useState('');
+    const [ notification, setNotification ] = useState(null);
+    const [ error, setError ] = useState(null);
 
     const hook = () => {
         numberService
@@ -85,6 +48,17 @@ const App = () => {
                     .replaceNumber(changedPerson)
                     .then(res => {
                         setPersons(persons.map(per => per.id !== changedPerson.id ? per : res.data));
+                        setNotification(`Changed ${personObj.name}'s number`);
+                        setTimeout(() => {
+                            setNotification(null);
+                        }, 5000)
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        setError(`Information of ${personObj.name} has already been removed from server`);
+                        setTimeout(() => {
+                            setError(null);
+                        }, 5000);
                     })
             }
         } else {
@@ -96,6 +70,10 @@ const App = () => {
                 .newRecord(personObj)
                 .then(res => {
                     setPersons(persons.concat(res.data));
+                    setNotification(`Added ${personObj.name}`);
+                    setTimeout(() => {
+                        setNotification(null);
+                    }, 5000);
                 });
         }
         setNewName('');
@@ -105,6 +83,8 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={notification} />
+            <Error message={error} />
             <Filter search={search} handleChange={handleSearchChange} />
 
             <h3>Add new record</h3>

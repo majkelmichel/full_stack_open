@@ -21,4 +21,6 @@ const replaceNumber = (person) => {
     return axios.put(`${baseUrl}/${person.id}`, person)
 }
 
-export default { getAll, newRecord, deleteRecord, replaceNumber, getOne }
+
+const numberService = {getAll, newRecord, deleteRecord, replaceNumber, getOne};
+export default numberService;
