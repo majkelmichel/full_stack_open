@@ -56,6 +56,12 @@ const generateId = () => {
 app.post('/api/persons', (req, res) => {
     const body = req.body;
     if (body.name && body.number) {
+        console.log(body.name);
+        if (persons.some(per => per.name === body.name)) {
+            return res.json({
+                error: 'name must be unique'
+            });
+        }
         const person = {
             "name": body.name,
             "number": body.number,
@@ -63,6 +69,14 @@ app.post('/api/persons', (req, res) => {
         }
         persons = persons.concat(person);
         res.json(person)
+    } else if (!body.name) {
+        return res.json({
+            error: 'name not specified'
+        })
+    } else if (!body.number) {
+        return res.json({
+            error: 'number not specified'
+        })
     } else {
         res.status(400).end();
     }
