@@ -1,8 +1,20 @@
 const express = require('express');
 
 const app = express();
+const morgan = require('morgan');
 
 app.use(express.json());
+app.use(morgan('tiny', {
+    skip: (req) => { return req.method === 'POST' }
+}));
+
+morgan.token('body', (req) => {
+    return JSON.stringify(req.body);
+})
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body', {
+    skip: (req) => { return req.method !== 'POST' }
+}))
 
 let persons = [
     {
@@ -56,9 +68,8 @@ const generateId = () => {
 app.post('/api/persons', (req, res) => {
     const body = req.body;
     if (body.name && body.number) {
-        console.log(body.name);
         if (persons.some(per => per.name === body.name)) {
-            return res.json({
+            return res.status(400).json({
                 error: 'name must be unique'
             });
         }
@@ -70,11 +81,11 @@ app.post('/api/persons', (req, res) => {
         persons = persons.concat(person);
         res.json(person)
     } else if (!body.name) {
-        return res.json({
+        return res.status(400).json({
             error: 'name not specified'
         })
     } else if (!body.number) {
-        return res.json({
+        return res.status(400).json({
             error: 'number not specified'
         })
     } else {
