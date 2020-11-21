@@ -1,8 +1,14 @@
+require('dotenv').config();
+
 const express = require('express');
 
 const app = express();
 const morgan = require('morgan');
 const cors = require('cors');
+
+const Person = require('./models/person');
+
+// MIDDLEWARE
 
 app.use(cors());
 
@@ -20,6 +26,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 }));
 
 app.use(express.static('build'));
+
 
 let persons = [
     {
@@ -44,26 +51,29 @@ let persons = [
     }
 ]
 
+// ROUTES
+
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(notes => {
+        res.json(notes);
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const person = persons.find(person => person.id === id);
-
-    if (person) {
-        res.json(person)
-    } else {
-        res.status(404).end();
-    }
+    Person.findById(req.params.id)
+        .then(person => {
+            res.json(person);
+        })
+        .catch(err => {
+            res.status(404).end();
+        })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id);
-    persons = persons.filter(person => person.id !== id);
-
-    res.status(204).end();
+    Person.deleteOne({ "_id": req.params.id })
+        .then(() => {
+            res.status(204).end();
+        })
 })
 
 const generateId = () => {
@@ -72,38 +82,47 @@ const generateId = () => {
 
 app.post('/api/persons', (req, res) => {
     const body = req.body;
-    if (body.name && body.number) {
-        if (persons.some(per => per.name === body.name)) {
-            return res.status(400).json({
-                error: 'name must be unique'
-            });
-        }
-        const person = {
-            "name": body.name,
-            "number": body.number,
-            "id": generateId()
-        }
-        persons = persons.concat(person);
-        res.json(person)
-    } else if (!body.name) {
-        return res.status(400).json({
-            error: 'name not specified'
-        })
-    } else if (!body.number) {
-        return res.status(400).json({
-            error: 'number not specified'
-        })
-    } else {
-        res.status(400).end();
-    }
+    // if (body.name && body.number) {
+    //     if (persons.some(per => per.name === body.name)) {
+    //         return res.status(400).json({
+    //             error: 'name must be unique'
+    //         });
+    //     }
+    //     const person = {
+    //         "name": body.name,
+    //         "number": body.number,
+    //         "id": generateId()
+    //     }
+    //     persons = persons.concat(person);
+    //     res.json(person)
+    // } else if (!body.name) {
+    //     return res.status(400).json({
+    //         error: 'name not specified'
+    //     })
+    // } else if (!body.number) {
+    //     return res.status(400).json({
+    //         error: 'number not specified'
+    //     })
+    // } else {
+    //     res.status(400).end();
+    // }
+    const person = new Person({
+        name: body.name,
+        number: body.number
+    })
+
+    person.save().then(savedPerson => {
+        res.json(savedPerson);
+    })
 })
 
 app.get('/info', (req, res) => {
     res.send(`<p>Phonebook has info for ${persons.length} people</p>${new Date()}`)
 })
 
-const PORT = process.env.PORT || 3001;
+// LISTENER
 
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 })
