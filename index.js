@@ -19,6 +19,8 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
     skip: (req) => { return req.method !== 'POST' }
 }))
 
+app.use(express.static('build'));
+
 let persons = [
     {
         "name": "Arto Hellas",
