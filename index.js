@@ -13,11 +13,11 @@ app.use(morgan('tiny', {
 
 morgan.token('body', (req) => {
     return JSON.stringify(req.body);
-})
+});
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body', {
     skip: (req) => { return req.method !== 'POST' }
-}))
+}));
 
 app.use(express.static('build'));
 
@@ -105,5 +105,5 @@ app.get('/info', (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-    console.log(`Server is runnning on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 })
