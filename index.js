@@ -53,6 +53,13 @@ app.get('/api/persons/:id', (req, res, next) => {
         .catch(err => next(err))
 })
 
+app.put('/api/persons/:id', (req, res) => {
+    Person.findByIdAndUpdate(req.params.id, req.body, {new: true})
+        .then(updatedPerson => {
+            res.json(updatedPerson);
+        })
+})
+
 app.use(errorHandler);
 
 app.delete('/api/persons/:id', (req, res) => {
