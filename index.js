@@ -31,6 +31,8 @@ const errorHandler = (err, req, res, next) => {
     console.log(err.message);
     if (err.name === 'CastError') {
         return res.status(400).json({ "error": "wrong id format" });
+    } else if (err.name === 'ValidationError') {
+        return res.status(400).json({ "error": "the name is already in the phonebook" });
     }
 
     next(err);
@@ -67,9 +69,8 @@ app.delete('/api/persons/:id', (req, res) => {
         })
 })
 
-app.use(errorHandler);
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body = req.body;
     // if (body.name && body.number) {
     //     if (persons.some(per => per.name === body.name)) {
@@ -100,9 +101,12 @@ app.post('/api/persons', (req, res) => {
         number: body.number
     })
 
-    person.save().then(savedPerson => {
-        res.json(savedPerson);
-    })
+    person
+        .save()
+        .then(savedPerson => {
+            res.json(savedPerson);
+        })
+        .catch(err => next(err));
 })
 
 app.get('/info', (req, res) => {
@@ -111,6 +115,9 @@ app.get('/info', (req, res) => {
             res.send(`<p>Phonebook has info for ${results.length} people</p>${new Date()}`)
         })
 })
+
+
+app.use(errorHandler);
 
 const unknownEndpoint = (req, res) => {
     res.status(404).send({ "error": "unknown endpoint" });
