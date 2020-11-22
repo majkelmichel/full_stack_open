@@ -11,7 +11,8 @@
     "deploy": "git push heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
     "logs:prod": "heroku logs --tail",
-    "push": "git push origin master:phonebook"
+    "push": "git push origin master:phonebook",
+    "lint": "eslint  ."
   },
   "author": "majkelmichel",
   "license": "ISC",
@@ -24,6 +25,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^7.14.0",
     "nodemon": "^2.0.6"
   }
 }
