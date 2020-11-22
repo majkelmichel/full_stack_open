@@ -60,8 +60,6 @@ app.put('/api/persons/:id', (req, res) => {
         })
 })
 
-app.use(errorHandler);
-
 app.delete('/api/persons/:id', (req, res) => {
     Person.findByIdAndRemove(req.params.id)
         .then(() => {
@@ -69,6 +67,7 @@ app.delete('/api/persons/:id', (req, res) => {
         })
 })
 
+app.use(errorHandler);
 
 app.post('/api/persons', (req, res) => {
     const body = req.body;
@@ -107,7 +106,10 @@ app.post('/api/persons', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
-    res.send(`<p>Phonebook has info for ${persons.length} people</p>${new Date()}`)
+    Person.find({})
+        .then(results => {
+            res.send(`<p>Phonebook has info for ${results.length} people</p>${new Date()}`)
+        })
 })
 
 const unknownEndpoint = (req, res) => {
