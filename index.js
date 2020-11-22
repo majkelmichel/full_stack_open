@@ -27,29 +27,15 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
 app.use(express.static('build'));
 
-
-let persons = [
-    {
-        "name": "Arto Hellas",
-        "number": "2130-431202-1",
-        "id": 1
-    },
-    {
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523",
-        "id": 2
-    },
-    {
-        "name": "Dan Abramov",
-        "number": "12-43-234345",
-        "id": 3
-    },
-    {
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122",
-        "id": 4
+const errorHandler = (err, req, res, next) => {
+    console.log(err.message);
+    if (err.name === 'CastError') {
+        return res.status(400).json({ "error": "wrong id format" });
     }
-]
+
+    next(err);
+}
+
 
 // ROUTES
 
@@ -59,26 +45,23 @@ app.get('/api/persons', (req, res) => {
     })
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
     Person.findById(req.params.id)
         .then(person => {
             res.json(person);
         })
-        .catch(err => {
-            res.status(404).end();
-        })
+        .catch(err => next(err))
 })
 
+app.use(errorHandler);
+
 app.delete('/api/persons/:id', (req, res) => {
-    Person.deleteOne({ "_id": req.params.id })
+    Person.findByIdAndRemove(req.params.id)
         .then(() => {
             res.status(204).end();
         })
 })
 
-const generateId = () => {
-    return Math.floor(Math.random() * 1000000);
-}
 
 app.post('/api/persons', (req, res) => {
     const body = req.body;
@@ -119,6 +102,11 @@ app.post('/api/persons', (req, res) => {
 app.get('/info', (req, res) => {
     res.send(`<p>Phonebook has info for ${persons.length} people</p>${new Date()}`)
 })
+
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({ "error": "unknown endpoint" });
+}
+app.use(unknownEndpoint);
 
 // LISTENER
 
