@@ -32,12 +32,15 @@ const errorHandler = (err, req, res, next) => {
     if (err.name === 'CastError') {
         return res.status(400).json({ "error": "wrong id format" });
     } else if (err.name === 'ValidationError') {
-        return res.status(400).json({ "error": "the name is already in the phonebook" });
+        return res.status(400).json({ "error": err.errors });
     }
 
     next(err);
 }
 
+// Options for mongoose update functions
+
+const opts = { runValidators: true, new: true }
 
 // ROUTES
 
@@ -55,11 +58,12 @@ app.get('/api/persons/:id', (req, res, next) => {
         .catch(err => next(err))
 })
 
-app.put('/api/persons/:id', (req, res) => {
-    Person.findByIdAndUpdate(req.params.id, req.body, {new: true})
+app.put('/api/persons/:id', (req, res, next) => {
+    Person.findByIdAndUpdate(req.params.id, req.body, { runValidators: true, new: true, context: 'query' })
         .then(updatedPerson => {
             res.json(updatedPerson);
         })
+        .catch(err => next(err));
 })
 
 app.delete('/api/persons/:id', (req, res) => {

@@ -15,10 +15,17 @@ const personSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        minlength: 3,
         unique: true
     },
     number: {
         type: String,
+        validate: {
+            validator: (v) => {
+                return v.match(/\d/g).length >= 8;
+            },
+            message: number => `'${number.value}' does not have at least 8 digits`
+        },
         required: true
     },
 })
